@@ -4,6 +4,8 @@ import { ArrowCircleDown, ArrowCircleUp, X } from "phosphor-react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useContext } from "react";
+import { TransactionContext } from "../../contexts/TransactionsContext";
 
 const newTransactionSchema = z.object({
   description: z.string(),
@@ -15,11 +17,13 @@ const newTransactionSchema = z.object({
 type NewTransactionInputs = z.infer<typeof newTransactionSchema>
 
 export function NewTransactionModal() {
+  const { createTransaction } = useContext(TransactionContext)
   const { 
     control,
     register, 
     handleSubmit,
-    formState: { isSubmitting } 
+    formState: { isSubmitting },
+    reset
   } = useForm<NewTransactionInputs>({
     resolver: zodResolver(newTransactionSchema),
     defaultValues: {
@@ -28,8 +32,16 @@ export function NewTransactionModal() {
   })
 
   async function handleNewTransactions(data: NewTransactionInputs){
-    await new Promise(resolver => setTimeout(resolver, 2000))
-    console.log(data)
+    const { description, category, price, type } = data 
+
+    await createTransaction({ 
+      description, 
+      category, 
+      price, 
+      type 
+    })
+    
+    reset()
   }
 
   return(
